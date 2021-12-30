@@ -29,11 +29,12 @@ services:
       - JOOMLA_DB_PASSWORD=$MYSQL_PASSWORD
       - JOOMLA_DB_NAME=joomla_docker
     volumes:
-      - type: blind
+      - type: bind
         source: /var/lib/uascloud
         target: /var/www/html
     networks:
-      - app-network
+      - app-network:
+          driver: bridge
 
 
   # wordpress:
