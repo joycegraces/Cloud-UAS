@@ -20,8 +20,6 @@ services:
     image: joomla
     container_name: joomla
     restart: always
-    ports:
-      - 8080:80
     env_file: .env
     links:
       - databaseuas.c1fvmon0yhsk.us-east-1.rds.amazonaws.com:3306
@@ -35,8 +33,41 @@ services:
         source: /var/lib/uascloud
         target: /var/www/html
     networks:
-      - app-network:
-          driver: bridge
+      - app-network
+    
+    webserver:
+      depends_on:
+        - joomla
+      image: nginx:1.15.12-alpine
+      container_name: webserver
+      restart: always
+      ports:
+        - "80:80"
+      volumes:
+        - /var/lib/uascloud:/var/www/html
+        - ./nginx-conf:/etc/nginx/conf.d
+        # - certbot-etc:/etc/letsencrypt
+      networks:
+        - app-network
+
+  # certbot:
+  #   depends_on:
+  #     - webserver
+  #   image: certbot/certbot
+  #   container_name: certbot
+  #   volumes:
+  #     - certbot-etc:/etc/letsencrypt
+  #     - /var/lib/efs/wordpress:/var/www/html
+  #   command: certonly --webroot --webroot-path=/var/www/html --email mishael.elian@ti.ukdw.ac.id --agree-tos --no-eff-email -d wordpres-finalcloud-815283555.us-east-1.elb.amazonaws.com
+
+# volumes:
+  # certbot-etc:
+  # wordpress:
+  # dbdata:
+
+networks:
+  app-network:
+    driver: bridge
 
 
   # wordpress:
